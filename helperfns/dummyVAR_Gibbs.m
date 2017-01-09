@@ -1,12 +1,13 @@
 function draws = dummyVAR_Gibbs(y_table,regimes,model,priors,options)
 %% Unpack stuff
-condition.regimes = regimes;
-condition.y_table = y_table;
 N       = size(y_table,2);
 model.N = N;
 p       = model.p;
 T       = size(y_table,1);
+model.T       = T;
 breakdate = model.breakdate;
+condition.regimes = regimes;
+condition.y_table = y_table;
 
 %% derivative things/ some constructions from inputs
 M1 = max(regimes(:,1)); % assumes all regimes are present
@@ -21,8 +22,8 @@ for m2 = 1:M2
 	condition.cov_dum_mat(:,m2) = regimes(:,2) == m2;
 end
 pphi_init = zeros(M1*p*N^2,1);
-condition.pphi = pphi_init;
-condition.Ssigma_array = zeros(N,N,M2);
+condition.pphi = options.pphi_init;
+condition.Ssigma_array = options.Ssigma_array_init;
 condition.break_dum_mat = zeros(T,2); % first col pre, second post break 84
 condition.break_dum_mat(1:breakdate,1) = ones(breakdate,1);
 condition.break_dum_mat(breakdate+1:end,2) = ones(T-breakdate,1);
@@ -50,13 +51,13 @@ Ssigma_prior.SSR = priors.Ssigma_SSR;
 Ssigma_prior.nnu = priors.Ssigma_nnu;
 Ssigma_condition.bbeta = zeros(N,1);
 Ssigma_model.N = N; % because there's N shocks
-Ssigma_array = zeros(N,N,M);
+Ssigma_array = zeros(N,N,M2);
 
 count = 0;
 i_draw = 1;
 while i_draw <= options.R
 	%% draw mmu
-	S2star = zeros(T*N,M*N);
+	S2star = zeros(T*N,2*M1*N);
 	y2star = zeros(T*N,1);
 	for t = 1:T
 		S2star(1+N*(t-1):N+N*(t-1),:) = transform_St2star_for_mmu(t,model,condition);
@@ -71,15 +72,18 @@ while i_draw <= options.R
 	end
 
 	%% draw pphi
-    [pphi_y2star,pphi_Z] = transform_for_pphi(model,condition);
-    pphi_condition.y = pphi_y2star(N*p+1:end,:); % the dependent TN-by-1, T # of obs, N # of variables
-    pphi_condition.Z = pphi_Z(N*p+1:end,:); % the TN-by-K matrix, K = sum k_n
-    stable = 0;
-    while stable ~= 1 % only accept draws that are stable
-        pphi = post_draw_bbeta_indie(pphi_model,pphi_condition,pphi_prior);
-        stable = checkpphi_stable(pphi,model.N,model.p);
-    end
-    condition.pphi = pphi; % key step of updating cond from draw
+	[pphi_y2star,pphi_Z] = transform_for_pphi(model,condition);
+	pphi_condition.y = pphi_y2star(N*p+1:end,:); % the dependent TN-by-1, T # of obs, N # of variables
+	pphi_condition.Z = pphi_Z(N*p+1:end,:); % the TN-by-K matrix, K = sum k_n
+	stable = 0;
+	while stable ~= 1 % only accept draws that are stable
+		pphi = post_draw_bbeta_indie(pphi_model,pphi_condition,pphi_prior);
+		pphi_array = reshape(pphi,N*N*p,M1);
+		for m1 = 1:M1
+			stable = checkpphi_stable(pphi_array(:,m1),model.N,model.p);
+		end
+	end
+	condition.pphi = pphi; % key step of updating cond from draw
 
 	if count >= options.burnin
 		draws.pphi(:,i_draw) = pphi;
@@ -88,15 +92,15 @@ while i_draw <= options.R
 	%% draw Ssigma_array
 	[E_table_forSsigma] = transform_for_Ssigma(model,condition);
 	E_table_forSsigma = E_table_forSsigma(p+1:end,:);
-	regimes_forSsigma = regimes(p+1:end,:);
-	for m = 1:M
-		Em = E_table_forSsigma(regimes_forSsigma==m,:);
+	regimes_forSsigma = regimes(p+1:end,2);
+	for m2 = 1:M2
+		Em = E_table_forSsigma(regimes_forSsigma==m2,:);
 		Ssigma_model.T = size(Em,1);
 		temp = Em';
 		Ssigma_condition.y = temp(:);
 		Ssigma_condition.Z = ones(Ssigma_model.T*Ssigma_model.N,Ssigma_model.N);
 		% pack things in
-		Ssigma_array(:,:,m) = post_draw_Ssigma_indie(Ssigma_model,Ssigma_condition,Ssigma_prior);
+		Ssigma_array(:,:,m2) = post_draw_Ssigma_indie(Ssigma_model,Ssigma_condition,Ssigma_prior);
 	end
 	condition.Ssigma_array = Ssigma_array; % key step of updating cond from draw
 	if count >= options.burnin

@@ -4,7 +4,7 @@ clc;
 close all
 addpath(genpath('../'))
 
-load sim_VAR
+load sim_for_mmu
 
 %% specify the empirical model
 N = 2; p = 2; M = 2;
