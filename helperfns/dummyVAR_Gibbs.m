@@ -2,37 +2,46 @@ function draws = dummyVAR_Gibbs(y_table,regimes,model,priors,options)
 %% Unpack stuff
 condition.regimes = regimes;
 condition.y_table = y_table;
-N = size(y_table,2); model.N = N;
-p = model.p;
-T = size(y_table,1);
+N       = size(y_table,2);
+model.N = N;
+p       = model.p;
+T       = size(y_table,1);
+breakdate = model.breakdate;
 
-%% derivative things/ some constructions
-M = max(regimes); % assumes all regimes are present
-model.M = M;
-condition.Ssigma_array = zeros(N,N,M);
-for m = 1:M
-	condition.dum_mat(:,m) = regimes == m;
-	condition.Ssigma_array(:,:,m) = eye(N);
+%% derivative things/ some constructions from inputs
+M1 = max(regimes(:,1)); % assumes all regimes are present
+M2 = max(regimes(:,2)); % assumes all regimes are present
+model.M1 = M1;
+model.M2 = M2;
+condition.Ssigma_array = zeros(N,N,M2);
+for m1 = 1:M1
+	condition.AR_dum_mat(:,m1) = regimes(:,1) == m1;
 end
-
-pphi_init = zeros(p*N^2,1);
+for m2 = 1:M2
+	condition.cov_dum_mat(:,m2) = regimes(:,2) == m2;
+end
+pphi_init = zeros(M1*p*N^2,1);
 condition.pphi = pphi_init;
+condition.Ssigma_array = zeros(N,N,M2);
+condition.break_dum_mat = zeros(T,2); % first col pre, second post break 84
+condition.break_dum_mat(1:breakdate,1) = ones(breakdate,1);
+condition.break_dum_mat(breakdate+1:end,2) = ones(T-breakdate,1);
 
-%% initializae container
-draws.pphi = options.pphi_init;
-draws.mmu = options.mmu_init;
+%% initializae containers
+draws.pphi         = options.pphi_init;
+draws.mmu          = options.mmu_init;
 draws.Ssigma_array = options.Ssigma_array_init;
 
-%% main body of Gibbs sampler
+%%% main body of Gibbs sampler
 % specification for transformed model for drawing mmu
-mmu_model.T = N*(T-p);
+mmu_model.T          = N*(T-p);
 mmu_prior.bbeta_mean = priors.mmu_mean; % prior mean for intercepts
-mmu_prior.bbeta_cov = priors.mmu_cov; % prior covariance wrt intercepts
+mmu_prior.bbeta_cov  = priors.mmu_cov; % prior covariance wrt intercepts
 mmu_condition.Ssigma = 1; % homogenized by the transformation
 
 % spec for drawing pphi
 pphi_model.T = N*(T-p);
-pphi_prior.bbeta_mean = priors.pphi_mean; % how confident about the fake SSR in prior
+pphi_prior.bbeta_mean = priors.pphi_mean; % confident re fake SSR in prior
 pphi_prior.bbeta_cov = priors.pphi_cov; % the S in the notes
 pphi_condition.Ssigma = 1; % the drown Ssigma matrix from previous step
 
@@ -40,7 +49,7 @@ pphi_condition.Ssigma = 1; % the drown Ssigma matrix from previous step
 Ssigma_prior.SSR = priors.Ssigma_SSR;
 Ssigma_prior.nnu = priors.Ssigma_nnu;
 Ssigma_condition.bbeta = zeros(N,1);
-Ssigma_model.N = N; % because there's N shocks 
+Ssigma_model.N = N; % because there's N shocks
 Ssigma_array = zeros(N,N,M);
 
 count = 0;
@@ -60,7 +69,7 @@ while i_draw <= options.R
 	if count >= options.burnin
 		draws.mmu(:,i_draw) = mmu;
 	end
-	
+
 	%% draw pphi
     [pphi_y2star,pphi_Z] = transform_for_pphi(model,condition);
     pphi_condition.y = pphi_y2star(N*p+1:end,:); % the dependent TN-by-1, T # of obs, N # of variables
@@ -75,7 +84,7 @@ while i_draw <= options.R
 	if count >= options.burnin
 		draws.pphi(:,i_draw) = pphi;
 	end
-	
+
 	%% draw Ssigma_array
 	[E_table_forSsigma] = transform_for_Ssigma(model,condition);
 	E_table_forSsigma = E_table_forSsigma(p+1:end,:);
@@ -110,7 +119,6 @@ while i_draw <= options.R
 		end
 		i_draw = i_draw + 1;
 	end
-	
 
 end
 
