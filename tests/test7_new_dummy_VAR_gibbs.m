@@ -35,7 +35,6 @@ for i_regime2 = 1:M2
 	options.Ssigma_array_init(:,:,i_regime2) = eye(N);
 end
 
-
 tic
 draws = dummyVAR_Gibbs(y,regimes_mat,model,priors,options);
 toc
