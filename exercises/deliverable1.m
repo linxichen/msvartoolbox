@@ -5,12 +5,9 @@ close all
 addpath(genpath('../'))
 
 %% generate random sequence for log name
-symbols       = ['a':'z' 'A':'Z' '0':'9'];
-MAX_ST_LENGTH = 50;
-stLength      = randi(MAX_ST_LENGTH);
-nums          = randi(numel(symbols),[1 stLength]);
-st            = symbols (nums);
-diary([st,'.txt']);
+formatout = 'yyyy-mm-dd-HH-MM';
+st = datestr(now,formatout);
+diary(['deliverable1-',st,'.txt']);
 
 % load data
 load manual_select_dummy_FRED
