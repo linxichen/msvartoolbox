@@ -4,6 +4,14 @@ clc;
 close all
 addpath(genpath('../'))
 
+%% generate random sequence for log name
+symbols       = ['a':'z' 'A':'Z' '0':'9'];
+MAX_ST_LENGTH = 50;
+stLength      = randi(MAX_ST_LENGTH);
+nums          = randi(numel(symbols),[1 stLength]);
+st            = symbols (nums);
+diary([st,'.txt']);
+
 % load data
 load manual_select_dummy_FRED
 start = 0; % first start date
@@ -58,7 +66,11 @@ end
 tic
 draws = dummyVAR_Gibbs(data,regimes_mat,model,priors,options);
 toc
+
 %% look at result
 median(draws.Ssigma_array,4)
 mean(draws.pphi,2)
 mean(draws.mmu,2)
+
+save deliverable1.mat
+diary off
