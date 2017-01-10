@@ -41,5 +41,5 @@ draws = dummyVAR_Gibbs(y,regimes_mat,model,priors,options);
 toc
 %% look at result
 median(draws.Ssigma_array,4)
-mean(draws.pphi,3)
-mean(draws.mmu,3)
+mean(draws.pphi,2)
+mean(draws.mmu,2)
