@@ -7,7 +7,7 @@ rng(12345);
 
 %% generate all inputs
 tmp_N = 2;
-tmp_T = 1e4;
+tmp_T = 5e2;
 tmp_p = 3;
 tmp_num_AR_regimes = 2;
 tmp_P1 = [0.94 0.06; 1-0.75 0.75];
