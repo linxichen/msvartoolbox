@@ -2,7 +2,7 @@
 clear;
 clc;
 close all
-addpath(genpath('../'))
+addpath(genpath('../helperfns'))
 
 %% generate random sequence for log name
 formatout = 'yyyy-mm-dd-HH-MM';
@@ -71,3 +71,7 @@ mean(draws.mmu,2)
 
 save deliverable1.mat
 diary off
+
+%% 
+RF_analysis
+

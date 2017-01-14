@@ -75,14 +75,20 @@ while i_draw <= options.R
 	[pphi_y2star,pphi_Z] = transform_for_pphi(model,condition);
 	pphi_condition.y = pphi_y2star(N*p+1:end,:); % the dependent TN-by-1, T # of obs, N # of variables
 	pphi_condition.Z = pphi_Z(N*p+1:end,:); % the TN-by-K matrix, K = sum k_n
-	stable = 0;
+	stable = false;
+	stable_vec = false(M1,1);
+	stable_count = 0;
 	while stable ~= 1 % only accept draws that are stable
 		pphi = post_draw_bbeta_indie(pphi_model,pphi_condition,pphi_prior);
 		pphi_array = reshape(pphi,N*N*p,M1);
 		for m1 = 1:M1
-			stable = checkpphi_stable(pphi_array(:,m1),model.N,model.p);
+			stable_vec(m1) = checkpphi_stable(pphi_array(:,m1),model.N,model.p);
 		end
+		stable = min(stable_vec);
+		stable_count = stable_count + 1;
 	end
+	disp(strcat('stable found after:| ',num2str(stable_count),'| draws'));
+
 	condition.pphi = pphi; % key step of updating cond from draw
 
 	if count >= options.burnin
