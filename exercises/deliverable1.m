@@ -33,7 +33,7 @@ break_dummy = (datelabel >= 1984.00);
 load regimes_MLE regimes_mat
 
 %% specify the empirical model
-model.p = 4;
+model.p = 3;
 model.T = length(regimes_mat);
 model.breakdate = find(datelabel == 1984.00,1,'first');
 condition.regimes = regimes_mat;
