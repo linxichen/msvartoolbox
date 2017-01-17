@@ -1,12 +1,14 @@
 %% loading data
 load deliverable1.mat
 
+[FEVD_array,cov_array,OIRF_array] = RFVAR_var_analysis(horizon,pphi,Ssigma_array,model);
+
 %% Apply the IRF thing to everything
 R = length(draws.pphi);
 horizon = 40;
 IRF1 = zeros(N,N,horizon,R);
 IRF2 = IRF1;
-for i_draw = 1:R
+parfor i_draw = 1:R
 	tmp_Pphi_array = reshape(draws.pphi(:,i_draw),N,N,p,M1);
 	Pphi1_array = reshape(tmp_Pphi_array(:,:,:,1),N,N,p);
 	Pphi2_array = reshape(tmp_Pphi_array(:,:,:,2),N,N,p);

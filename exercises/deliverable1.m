@@ -41,9 +41,9 @@ condition.y_table = data;
 
 %% specify priors for hyperpara, very flat
 p = model.p;
-N = size(data,2);
-M1 = max(regimes_mat(:,1));
-M2 = max(regimes_mat(:,2));
+N = size(data,2); model.N = N;
+M1 = max(regimes_mat(:,1)); model.M1 = M1;
+M2 = max(regimes_mat(:,2)); model.M2 = M2;
 priors.mmu_mean = zeros(N*2*M1,1);
 priors.mmu_cov = 1e5*eye(N*2*M1);
 priors.pphi_mean = zeros(N*N*p*M1,1);
