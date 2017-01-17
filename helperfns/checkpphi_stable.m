@@ -4,5 +4,5 @@ Pphi_mat = reshape(pphi,N,N*p);
 % construct the companion matrix as you write VAR(p) into VAR(1)
 F = [Pphi_mat; kron(eye(p-1),eye(N)), zeros(N*(p-1),N)];
 eigenvalues = eig(F,'vector');
-stable = abs(max(eigenvalues)) < 1;
+stable = max(abs(eigenvalues)) < 1;
 end

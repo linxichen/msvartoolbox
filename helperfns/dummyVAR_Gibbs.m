@@ -86,6 +86,7 @@ while i_draw <= options.R
 		end
 		stable = min(stable_vec);
 		stable_count = stable_count + 1;
+		stable = true;%!!!!!!!!!!!!!!! bypass stability check for once
 	end
 	disp(strcat('stable found after:| ',num2str(stable_count),'| draws'));
 
