@@ -1,20 +1,21 @@
 %% loading data
 load deliverable1.mat
 
-[FEVD_array,cov_array,OIRF_array] = RFVAR_var_analysis(horizon,pphi,Ssigma_array,model);
-
 %% Apply the IRF thing to everything
 R = length(draws.pphi);
 horizon = 40;
-IRF1 = zeros(N,N,horizon,R);
-IRF2 = IRF1;
-parfor i_draw = 1:R
-	tmp_Pphi_array = reshape(draws.pphi(:,i_draw),N,N,p,M1);
-	Pphi1_array = reshape(tmp_Pphi_array(:,:,:,1),N,N,p);
-	Pphi2_array = reshape(tmp_Pphi_array(:,:,:,2),N,N,p);
-	IRF1(:,:,:,i_draw) = OIRF_RFVAR(horizon,Pphi1_array,draws.Ssigma_array(:,:,1,i_draw),N,p);
-	IRF2(:,:,:,i_draw) = OIRF_RFVAR(horizon,Pphi2_array,draws.Ssigma_array(:,:,2,i_draw),N,p);
+FEVD_array = zeros(N,N,N,M1,M2,R);
+cov_array = zeros(N,N,N,M1,M2,R);
+unnormalized_OIRF_array = zeros(N,N,horizon+1,M1,M2,R);
+for i_draw = 1:R
+	pphi = draws.pphi(:,i_draw);
+	Ssigma_array = draws.Ssigma_array(:,:,:,i_draw);
+	[FEVD_array(:,:,:,:,:,i_draw),...
+		cov_array(:,:,:,:,:,i_draw),...
+		unnormalized_OIRF_array(:,:,:,:,:,i_draw)] = ...
+		RFVAR_var_analysis(horizon,pphi,Ssigma_array,model);
 end
+save deliverable1_analysis.mat
 
 %% plotting
 subplot(2,1,1)
