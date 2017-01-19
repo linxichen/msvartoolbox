@@ -1,4 +1,4 @@
-function [FEVD_array,cov_array,unnormalized_OIRF_array] = RFVAR_var_analysis(horizon,pphi,Ssigma_array,model)
+function [FEVD_array,cov_array,OIRF_array,corr_array] = RFVAR_var_analysis(horizon,pphi,Ssigma_array,model)
 % The usual Orthogonalized IRF for a demeaned VAR
 % The initial shock size is normalized to be unity
 N = model.N;
@@ -9,7 +9,8 @@ Pphi_array = reshape(pphi,N,N,p,M1);
 
 %% initialize containers
 FEVD_array = zeros(N,N,N,M1,M2);
-cov_array = zeros(N,N,N,M1,M2);
+cov_array = zeros(N,N,M1,M2);
+corr_array = zeros(N,N,M1,M2);
 unnormalized_OIRF_array = zeros(N,N,horizon+1,M1,M2);
 
 for m1 = 1:M1
@@ -37,11 +38,21 @@ for m1 = 1:M1
 		for i = 1:N
 			FEVD_array(:,:,i,m1,m2) = 100*tmp_table(:,:,i)./cov_mat;
 		end
-		cov_array(:,:,i,m1,m2) = cov_mat;
+		cov_array(:,:,m1,m2) = cov_mat;
+		for i = 1:N
+			for j = 1:N
+				corr_array(i,j,m1,m2) = cov_array(i,j,m1,m2)...
+					/sqrt(cov_array(i,i,m1,m2)*cov_array(j,j,m1,m2));
+			end
+		end
 		
 		%% Pick up IRF
 		for h = 0:horizon
 			unnormalized_OIRF_array(:,:,h+1,m1,m2) = Ppsi_L.Coefficients{h}*L;
+		end
+		for i_shock = 1:N
+			OIRF_array(:,i_shock,:,m1,m2) = unnormalized_OIRF_array(:,:,h+1,m1,m2)...
+				/unnormalized_OIRF_array(i_shock,i_shock,1,m1,m2);		
 		end
 
 	end
