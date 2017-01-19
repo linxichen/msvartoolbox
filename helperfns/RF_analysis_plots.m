@@ -1,5 +1,10 @@
-%% Create tables and graphs after analysis
+%% housekeeping
+clear;
+clc;
+close all
+addpath(genpath('../helperfns'))
 
+%% Create tables and graphs after analysis
 %% Get FEVD tables first
 prctile(cov_array(1,1,1,1,:),2.5,6)
 prctile(cov_array(1,1,1,1,:),97.5,6)

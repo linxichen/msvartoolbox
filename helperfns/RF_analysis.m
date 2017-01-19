@@ -1,3 +1,9 @@
+%% housekeeping
+clear;
+clc;
+close all
+addpath(genpath('../helperfns'))
+
 %% loading data
 load deliverable1.mat
 

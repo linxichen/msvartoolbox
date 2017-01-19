@@ -73,5 +73,6 @@ save deliverable1.mat
 diary off
 
 %% 
-RF_analysis
+RF_analysis;
+RF_analysis_plots;
 
