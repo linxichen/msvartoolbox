@@ -11,6 +11,7 @@ Pphi_array = reshape(pphi,N,N,p,M1);
 FEVD_array = zeros(N,N,N,M1,M2);
 cov_array = zeros(N,N,M1,M2);
 corr_array = zeros(N,N,M1,M2);
+OIRF_array = zeros(N,N,horizon+1,M1,M2);
 unnormalized_OIRF_array = zeros(N,N,horizon+1,M1,M2);
 
 for m1 = 1:M1
@@ -20,11 +21,11 @@ for m1 = 1:M1
 		for j = 1:p
 			Pphi_L.Coefficients{j} = -squeeze(Pphi_array(:,:,j,m1));
 		end
-		
+
 		Ssigma_now = Ssigma_array(:,:,m2);
 		L = chol(Ssigma_now,'lower');
-		Ppsi_L = Pphi_L\eye(N);
-		
+		Ppsi_L = eye(N)/Pphi_L;
+
 		%% Compute FEVD and total variance
 		D = Ppsi_L.Degree;
 		tmp_table = zeros(N,N,N);
@@ -45,14 +46,14 @@ for m1 = 1:M1
 					/sqrt(cov_array(i,i,m1,m2)*cov_array(j,j,m1,m2));
 			end
 		end
-		
+
 		%% Pick up IRF
 		for h = 0:horizon
 			unnormalized_OIRF_array(:,:,h+1,m1,m2) = Ppsi_L.Coefficients{h}*L;
 		end
 		for i_shock = 1:N
-			OIRF_array(:,i_shock,:,m1,m2) = unnormalized_OIRF_array(:,:,h+1,m1,m2)...
-				/unnormalized_OIRF_array(i_shock,i_shock,1,m1,m2);		
+			OIRF_array(:,i_shock,:,m1,m2) = unnormalized_OIRF_array(:,i_shock,:,m1,m2)...
+				/unnormalized_OIRF_array(i_shock,i_shock,1,m1,m2);
 		end
 
 	end
