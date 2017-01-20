@@ -14,6 +14,7 @@ FEVD_array = zeros(N,N,N,M1,M2,R);
 cov_array = zeros(N,N,M1,M2,R);
 corr_array = zeros(N,N,M1,M2,R);
 OIRF_array = zeros(N,N,horizon+1,M1,M2,R);
+tic
 parfor i_draw = 1:R
 	pphi = draws.pphi(:,i_draw);
 	Ssigma_array = draws.Ssigma_array(:,:,:,i_draw);
@@ -24,4 +25,5 @@ parfor i_draw = 1:R
 		] = ...
 		RFVAR_var_analysis(horizon,pphi,Ssigma_array,model);
 end
+toc
 save deliverable1_analysis.mat

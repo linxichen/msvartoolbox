@@ -32,7 +32,7 @@ for m1 = 1:M1
 		for h = 0:D
 			for i = 1:N
 				Ppsi = Ppsi_L.Coefficients{h};
-				tmp_table(:,:,i) = Ppsi*L(:,i)*L(:,i)'*Ppsi';
+				tmp_table(:,:,i) = tmp_table(:,:,i) + Ppsi*L(:,i)*L(:,i)'*Ppsi';
 			end
 		end
 		cov_mat = sum(tmp_table,3);
