@@ -7,8 +7,33 @@ load('deliverable1_analysis.mat')
 
 %% Create tables and graphs after analysis
 %% Get FEVD tables first
+prctile(squeeze(corr_array(3,1,1,1,:)),16)
+prctile(squeeze(corr_array(3,1,1,1,:)),50)
+prctile(squeeze(corr_array(3,1,1,1,:)),84)
+
 prctile(squeeze(corr_array(3,1,2,1,:)),16)
+prctile(squeeze(corr_array(3,1,2,1,:)),50)
 prctile(squeeze(corr_array(3,1,2,1,:)),84)
+
+prctile(squeeze(corr_array(2,3,1,2,:)),16)
+prctile(squeeze(corr_array(2,3,1,2,:)),50)
+prctile(squeeze(corr_array(2,3,1,2,:)),84)
+
+prctile(squeeze(corr_array(2,3,2,2,:)),16)
+prctile(squeeze(corr_array(2,3,2,2,:)),50)
+prctile(squeeze(corr_array(2,3,2,2,:)),84)
+
+prctile(squeeze(corr_array(2,1,1,2,:)),16)
+prctile(squeeze(corr_array(2,1,1,2,:)),84)
+
+prctile(squeeze(corr_array(2,1,2,2,:)),16)
+prctile(squeeze(corr_array(2,1,2,2,:)),84)
+
+prctile(squeeze(cov_array(3,3,1,1,:)),16)
+prctile(squeeze(cov_array(3,3,1,1,:)),84)
+
+prctile(squeeze(cov_array(3,3,2,1,:)),16)
+prctile(squeeze(cov_array(3,3,2,1,:)),84)
 
 %% plotting
 figure

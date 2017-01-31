@@ -42,8 +42,12 @@ for m1 = 1:M1
 		cov_array(:,:,m1,m2) = cov_mat;
 		for i = 1:N
 			for j = 1:N
-				corr_array(i,j,m1,m2) = cov_array(i,j,m1,m2)...
-					/sqrt(cov_array(i,i,m1,m2)*cov_array(j,j,m1,m2));
+				if i == j
+					corr_array(i,j,m1,m2) = sqrt(cov_array(i,j,m1,m2));
+				else
+					corr_array(i,j,m1,m2) = cov_array(i,j,m1,m2)...
+						/sqrt(cov_array(i,i,m1,m2)*cov_array(j,j,m1,m2));
+				end
 			end
 		end
 
